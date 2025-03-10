@@ -8,8 +8,8 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // OAuth app details from environment variables
-const CLIENT_ID = process.env.CLIENT_ID;
-const CLIENT_SECRET = process.env.CLIENT_SECRET;
+const CLIENT_ID = process.env.CLIENT_ID; // Set in Railway dashboard
+const CLIENT_SECRET = process.env.CLIENT_SECRET; // Set in Railway dashboard
 const REDIRECT_URI = process.env.REDIRECT_URI || "https://intelligent-creativity.up.railway.app/oauth/redirect";
 
 // Step 1: Authorization URL
@@ -63,6 +63,5 @@ app.listen(PORT, () => {
 });
 
 // Instructions for .env file:
-// CLIENT_ID=your_client_id_here
-// CLIENT_SECRET=your_client_secret_here
-// REDIRECT_URI=https://intelligent-creativity.up.railway.app/oauth/redirect
+// CLIENT_ID and CLIENT_SECRET are securely stored in Railway's environment variables.
+// REDIRECT_URI can also be set in the environment or defaults to production URI.
