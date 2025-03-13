@@ -33,16 +33,16 @@ app.get('/oauth/redirect', async (req, res) => {
 
     try {
         const tokenResponse = await axios.post(
-            'https://www.wix.com/oauth/access',
-            {
-                client_id: CLIENT_ID,
-                client_secret: CLIENT_SECRET,
-                grant_type: 'authorization_code',
-                code,
-                redirect_uri: REDIRECT_URI
-            },
-            { headers: { 'Content-Type': 'application/json' } }
-        );
+    'https://www.wix.com/oauth/access_token',
+    new URLSearchParams({
+        client_id: CLIENT_ID,
+        client_secret: CLIENT_SECRET,
+        grant_type: 'authorization_code',
+        code,
+        redirect_uri: REDIRECT_URI
+    }),
+    { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+);
 
         const accessToken = tokenResponse.data.access_token;
         res.send(`Access token received: ${accessToken}`);
