@@ -5,8 +5,7 @@ const axios = require('axios');
 require('dotenv').config();
 
 const app = express();
-const PORT = process.env.PORT;
-
+const PORT = process.env.PORT || 3000; // Default to 3000 locally
 
 // OAuth app details from environment variables
 const CLIENT_ID = process.env.CLIENT_ID; // Set in Railway dashboard
@@ -34,16 +33,16 @@ app.get('/oauth/redirect', async (req, res) => {
 
     try {
         const tokenResponse = await axios.post(
-    'https://www.wix.com/oauth/access_token',
-    new URLSearchParams({
-        client_id: CLIENT_ID,
-        client_secret: CLIENT_SECRET,
-        grant_type: 'authorization_code',
-        code,
-        redirect_uri: REDIRECT_URI
-    }),
-    { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
-);
+            'https://www.wix.com/oauth/access_token',
+            new URLSearchParams({
+                client_id: CLIENT_ID,
+                client_secret: CLIENT_SECRET,
+                grant_type: 'authorization_code',
+                code,
+                redirect_uri: REDIRECT_URI
+            }),
+            { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+        );
 
         const accessToken = tokenResponse.data.access_token;
         res.send(`Access token received: ${accessToken}`);
