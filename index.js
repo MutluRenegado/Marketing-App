@@ -5,7 +5,8 @@ const axios = require('axios');
 require('dotenv').config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT;
+
 
 // OAuth app details from environment variables
 const CLIENT_ID = process.env.CLIENT_ID; // Set in Railway dashboard
