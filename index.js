@@ -2,10 +2,14 @@
 
 const express = require('express');
 const axios = require('axios');
+const authRoutes = require('./auth.js'); // Import authentication routes
 require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3000; // Default to 3000 locally
+
+app.use(express.json());
+app.use('/auth', authRoutes); // Attach authentication routes
 
 // OAuth app details from environment variables
 const CLIENT_ID = process.env.CLIENT_ID; // Set in Railway dashboard
