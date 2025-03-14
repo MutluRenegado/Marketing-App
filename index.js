@@ -1,9 +1,10 @@
 // OAuth app setup for Wix with Railway deployment
 
-const express = require('express');
-const axios = require('axios');
-const authRoutes = require('./auth.js'); // Import authentication routes
-require('dotenv').config();
+import express from 'express'; // Use import syntax
+import axios from 'axios'; // Use import syntax
+import authRoutes from './auth.js'; // Import authentication routes
+import dotenv from 'dotenv'; // Use import syntax
+dotenv.config(); // Load environment variables
 
 const app = express();
 const PORT = process.env.PORT || 3000; // Default to 3000 locally
@@ -65,7 +66,3 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
-
-// Instructions for .env file:
-// CLIENT_ID and CLIENT_SECRET are securely stored in Railway's environment variables.
-// REDIRECT_URI can also be set in the environment or defaults to production URI.
