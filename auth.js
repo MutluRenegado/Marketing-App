@@ -11,11 +11,11 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret'; // Use environme
 
 // OAuth Strategy (example)
 passport.use(new OAuth2Strategy({
-    authorizationURL: process.env.AUTHORIZATION_URL || 'https://example.com/oauth/authorize',
-    tokenURL: process.env.TOKEN_URL || 'https://example.com/oauth/token',
-    clientID: process.env.CLIENT_ID || 'your-client-id',
-    clientSecret: process.env.CLIENT_SECRET || 'your-client-secret',
-    callbackURL: process.env.CALLBACK_URL || 'https://your-app-url.com/auth/callback'
+    authorizationURL: process.env.AUTHORIZATION_URL || 'https://www.wix.com/oauth/authorize', // Replace with the Wix OAuth URL
+    tokenURL: process.env.TOKEN_URL || 'https://www.wix.com/oauth/token', // Replace with the Wix OAuth token URL
+    clientID: process.env.CLIENT_ID || 'CLIENTID', // Replace with your actual CLIENT_ID
+    clientSecret: process.env.CLIENT_SECRET || 'SECRETID', // Replace with your actual CLIENT_SECRET
+    callbackURL: process.env.CALLBACK_URL || 'https://your-app-url.com/auth/redirect' // Replace with the actual CALLBACK_URL
 },
 function(accessToken, refreshToken, profile, done) {
     // You can find or create the user based on the OAuth response here
@@ -74,8 +74,9 @@ router.post('/signin', async (req, res) => {
 router.get('/login', passport.authenticate('oauth2'));
 
 // OAuth2 Callback Route
-router.get('/callback', passport.authenticate('oauth2', { failureRedirect: '/' }),
+router.get('/redirect', passport.authenticate('oauth2', { failureRedirect: '/' }),
     (req, res) => {
+        // Successful authentication, redirect to home page
         res.redirect('/');
     }
 );
