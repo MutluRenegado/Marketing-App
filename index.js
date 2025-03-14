@@ -16,9 +16,9 @@ app.use(express.json());
 app.use('/auth', authRoutes); // Authentication routes, handled in separate auth.js file
 
 // OAuth app details from environment variables
-const CLIENT_ID = process.env.CLIENTID; 
-const CLIENT_SECRET = process.env.SECRETID; 
-const REDIRECT_URI = process.env.REDIRECT_URI || "https://ouath-app-mutlus-projects-463caf8b.vercel.app/redirect"; // Fallback if not set in env
+const CLIENT_ID = process.env.CLIENT_ID;  // Environment variable for Client ID
+const CLIENT_SECRET = process.env.CLIENT_SECRET;  // Environment variable for Client Secret
+const REDIRECT_URI = process.env.CALLBACK_URL || "https://ouath-app-mutlus-projects-463caf8b.vercel.app/redirect"; // Fallback to default redirect URL if not set
 
 // Step 1: Generate OAuth Authorization URL
 app.get('/oauth', (req, res) => {
@@ -44,11 +44,11 @@ app.get('/oauth/redirect', async (req, res) => {
     const tokenResponse = await axios.post(
       'https://www.wix.com/oauth/access_token',
       new URLSearchParams({
-        client_id: CLIENTID,
-        client_secret: SECRETID,
+        client_id: CLIENT_ID,  // Use CLIENT_ID from environment variable
+        client_secret: CLIENT_SECRET,  // Use CLIENT_SECRET from environment variable
         grant_type: 'authorization_code',
         code,
-        redirect_uri: REDIRECT_URI
+        redirect_uri: REDIRECT_URI  // Use REDIRECT_URI from environment variable
       }),
       { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
     );
