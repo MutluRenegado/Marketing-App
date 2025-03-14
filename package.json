@@ -13,7 +13,8 @@
     "axios": "^1.4.0",
     "dotenv": "^16.1.4",
     "express": "^4.18.2",
-    "passport": "^0.5.2"
+    "passport": "^0.5.2",
+    "passport-oauth2": "^1.6.1"  // Add this line
   },
   "devDependencies": {
     "nodemon": "^2.0.22"
