@@ -7,19 +7,18 @@ import { v4 as uuidv4 } from 'uuid';
 import users from './users'; // Import your user database (if separate)
 
 const router = express.Router();
-const JWT_SECRET = 'your_jwt_secret'; // Change this to a secure secret
+const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret'; // Use environment variable for security
 
 // OAuth Strategy (example)
 passport.use(new OAuth2Strategy({
-    authorizationURL: 'https://example.com/oauth/authorize',
-    tokenURL: 'https://example.com/oauth/token',
-    clientID: 'your-client-id',
-    clientSecret: 'your-client-secret',
-    callbackURL: 'https://your-app-url.com/auth/callback'
+    authorizationURL: process.env.AUTHORIZATION_URL || 'https://example.com/oauth/authorize',
+    tokenURL: process.env.TOKEN_URL || 'https://example.com/oauth/token',
+    clientID: process.env.CLIENT_ID || 'your-client-id',
+    clientSecret: process.env.CLIENT_SECRET || 'your-client-secret',
+    callbackURL: process.env.CALLBACK_URL || 'https://your-app-url.com/auth/callback'
 },
 function(accessToken, refreshToken, profile, done) {
     // You can find or create the user based on the OAuth response here
-    // You might already have some OAuth logic set up in your existing `oauth.js`
     done(null, profile);
 }));
 
@@ -77,7 +76,6 @@ router.get('/login', passport.authenticate('oauth2'));
 // OAuth2 Callback Route
 router.get('/callback', passport.authenticate('oauth2', { failureRedirect: '/' }),
     (req, res) => {
-        // Successful authentication, redirect home or to another page
         res.redirect('/');
     }
 );
