@@ -18,7 +18,7 @@ app.use('/auth', authRoutes); // Authentication routes, handled in separate auth
 // OAuth app details from environment variables
 const CLIENT_ID = process.env.CLIENT_ID; 
 const CLIENT_SECRET = process.env.CLIENT_SECRET; 
-const REDIRECT_URI = process.env.REDIRECT_URI || "https://ouath-app.up.railway.app/oauth/redirect"; // Fallback if not set in env
+const REDIRECT_URI = process.env.REDIRECT_URI || "https://ouath-app-mutlus-projects-463caf8b.vercel.app/redirect"; // Fallback if not set in env
 
 // Step 1: Generate OAuth Authorization URL
 app.get('/oauth', (req, res) => {
