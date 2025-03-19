@@ -23,7 +23,7 @@ app.get('/oauth/callback', async (req, res) => {
             code: code,
             client_id: process.env.CLIENT_ID,  // Use environment variables for security
             client_secret: process.env.CLIENT_SECRET,  // Use environment variables for security
-            redirect_uri: 'https://oauth.pstmn.io/v1/callback'  // The redirect URI should match the one in your Wix app settings
+            redirect_uri: 'https://oauth.pstmn.io/v1/callback'  // Using Postman's callback URL
         }), {
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded', // Set content type to x-www-form-urlencoded
