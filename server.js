@@ -1,45 +1,54 @@
-import dotenv from 'dotenv';  // Load environment variables
-import express from 'express'; // Import Express
-import axios from 'axios';     // Import Axios for HTTP requests
-import qs from 'querystring';  // Import querystring to format POST data
+import dotenv from 'dotenv';  // Using ES Module import to load environment variables
+import express from 'express'; // Using ES Module import for Express
+import axios from 'axios';     // Using ES Module import for Axios to make HTTP requests
+import qs from 'querystring';   // Import querystring to format data for POST request
 
-dotenv.config(); // Load environment variables from .env file
+// Load environment variables from the .env file
+dotenv.config();
 
-const app = express(); // Create an Express app
+const app = express();
 
-// OAuth callback route
+// OAuth callback route to handle the redirect after authorization
 app.get('/oauth/callback', async (req, res) => {
-    const code = req.query.code; // Retrieve authorization code
+    const code = req.query.code; // The authorization code passed in the query params
 
+    // Check if the authorization code is provided
     if (!code) {
-        return res.status(400).json({ error: 'Authorization code is missing.' });
+        return res.status(400).send('Authorization code is missing.');
     }
 
     try {
-        // Exchange authorization code for access token
+        // Exchange the authorization code for an access token
         const response = await axios.post('https://www.wix.com/oauth/access_token', qs.stringify({
             code: code,
-            client_id: process.env.CLIENT_ID,
-            client_secret: process.env.CLIENT_SECRET,
-            redirect_uri: process.env.REDIRECT_URI,
+            client_id: process.env.CLIENT_ID,  // Use environment variables for security
+            client_secret: process.env.CLIENT_SECRET,  // Use environment variables for security
+            redirect_uri: process.env.REDIRECT_URI  // The redirect URI should match the one in your Wix app settings
         }), {
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded', // Set content type to x-www-form-urlencoded
+            }
         });
 
-        const { access_token, refresh_token } = response.data; // Extract tokens
-        console.log('Access Token:', access_token);
-        if (refresh_token) {
-            console.log('Refresh Token:', refresh_token);
-        }
+        const accessToken = response.data.access_token; // Get the access token from the response
+        const refreshToken = response.data.refresh_token; // Get the refresh token
 
-        // Redirect user to frontend with access token (or store it securely)
-        res.redirect(`${process.env.FRONTEND_URL}/success?token=${access_token}`);
+        // Optionally, you can store the access token in a session or database
+        console.log('Access Token:', accessToken);
+        console.log('Refresh Token:', refreshToken);
+
+        // Respond with a success message or redirect to your frontend
+        res.send('OAuth authentication successful!');
+
+        // If you need to fetch product data, you can call another function here using the access token
+        await fetchProductOptions(accessToken);
     } catch (error) {
-        console.error('OAuth error:', error.response?.data || error.message);
-        res.status(500).json({ error: 'OAuth authentication failed.', details: error.response?.data });
+        console.error('Error exchanging code for access token:', error);
+        res.status(500).send('OAuth authentication failed.');
     }
 });
 
-// Vercel automatically handles server listening, so no need for `app.listen()`
-
-export default app; // Ensure Vercel handles it properly
+// Fetch product options with the access token
+async function fetchProductOptions(accessToken) {
+    try {
+        // Use the access token for authenticated AP
