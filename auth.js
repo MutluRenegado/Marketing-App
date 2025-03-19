@@ -1,94 +1,71 @@
+import dotenv from 'dotenv';
 import express from 'express';
-import passport from 'passport';
-import { OAuth2Strategy } from 'passport-oauth2';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import { v4 as uuidv4 } from 'uuid';
-import users from './users'; // Import your user database (if separate)
+import axios from 'axios';
 
-const router = express.Router();
-const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret'; // Use environment variable for security
+// Load environment variables from the .env file
+dotenv.config();
 
-// OAuth Strategy (example)
-passport.use(new OAuth2Strategy({
-    authorizationURL: process.env.AUTHORIZATION_URL || 'https://www.wix.com/oauth/authorize', // Replace with the Wix OAuth URL
-    tokenURL: process.env.TOKEN_URL || 'https://www.wix.com/oauth/token', // Replace with the Wix OAuth token URL
-    clientID: process.env.CLIENT_ID || 'CLIENTID', // Replace with your actual CLIENT_ID
-    clientSecret: process.env.CLIENT_SECRET || 'SECRETID', // Replace with your actual CLIENT_SECRET
-    callbackURL: process.env.CALLBACK_URL || 'https://your-app-url.com/auth/redirect' // Replace with the actual CALLBACK_URL
-},
-function(accessToken, refreshToken, profile, done) {
-    // You can find or create the user based on the OAuth response here
-    done(null, profile);
-}));
+const app = express();
 
-// Sign Up Endpoint
-router.post('/signup', async (req, res) => {
-    const { name, username, email, password } = req.body;
-    
-    // Check if user already exists
-    if (users.some(user => user.email === email)) {
-        return res.status(400).json({ message: 'User already exists' });
+// OAuth callback route to handle the redirect after authorization
+app.get('/oauth/callback', async (req, res) => {
+    const code = req.query.code; // The authorization code passed in the query params
+
+    // Check if the authorization code is provided
+    if (!code) {
+        return res.status(400).send('Authorization code is missing.');
     }
-    
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
-    
-    // Create new user
-    const newUser = {
-        id: uuidv4(),
-        name,
-        username,
-        email,
-        password: hashedPassword,
-        isVerified: false,
-        createdAt: new Date().toISOString()
-    };
-    
-    users.push(newUser); // Replace with your database insertion logic
-    res.status(201).json({ message: 'User created' });
+
+    try {
+        // Exchange the authorization code for an access token
+        const response = await axios.post('https://www.wix.com/oauth/access_token', null, {
+            params: {
+                code: code,
+                client_id: process.env.CLIENT_ID,  // Use environment variables for security
+                client_secret: process.env.CLIENT_SECRET,  // Use environment variables for security
+                redirect_uri: 'https://oauth.pstmn.io/v1/callback'  // The redirect URI should match the one in your Wix app settings
+            },
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded' // Set the correct content type
+            }
+        });
+
+        const accessToken = response.data.access_token; // Get the access token from the response
+        const refreshToken = response.data.refresh_token; // Get the refresh token
+
+        // Optionally, you can store the access token in a session or database
+        console.log('Access Token:', accessToken);
+        console.log('Refresh Token:', refreshToken);
+
+        // Respond with a success message or redirect to your frontend
+        res.send('OAuth authentication successful!');
+
+        // If you need to fetch product data, you can call another function here using the access token
+        await fetchProductOptions(accessToken);
+    } catch (error) {
+        console.error('Error exchanging code for access token:', error);
+        res.status(500).send('OAuth authentication failed.');
+    }
 });
 
-// Sign In Endpoint (JWT)
-router.post('/signin', async (req, res) => {
-    const { email, password } = req.body;
-    
-    // Find user
-    const user = users.find(user => user.email === email);
-    if (!user) {
-        return res.status(400).json({ message: 'Invalid credentials' });
+// Fetch product options with the access token
+async function fetchProductOptions(accessToken) {
+    try {
+        // Use the access token for authenticated API requests
+        const response = await axios.get('https://www.wix.com/_functions/products/getProductOptionsAvailability', {
+            headers: {
+                Authorization: `Bearer ${accessToken}`
+            }
+        });
+
+        // Example of logging the fetched product options
+        console.log('Fetched product options:', response.data);
+    } catch (error) {
+        console.error('Error fetching product options:', error);
     }
-    
-    // Validate password
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-        return res.status(400).json({ message: 'Invalid credentials' });
-    }
-    
-    // Generate JWT token
-    const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: '1h' });
-    res.status(200).json({ message: 'Login successful', token });
+}
+
+// Start the Express server
+app.listen(3000, () => {
+    console.log('Server is running on http://localhost:3000');
 });
-
-// OAuth2 Login Route
-router.get('/login', passport.authenticate('oauth2'));
-
-// OAuth2 Callback Route
-router.get('/redirect', passport.authenticate('oauth2', { failureRedirect: '/' }),
-    (req, res) => {
-        // Successful authentication, redirect to home page
-        res.redirect('/');
-    }
-);
-
-// Logout Route
-router.get('/logout', (req, res) => {
-    req.logout(err => {
-        if (err) {
-            return res.status(500).json({ message: 'Logout failed', error: err });
-        }
-        res.redirect('/');
-    });
-});
-
-export default router;
