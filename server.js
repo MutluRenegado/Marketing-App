@@ -23,7 +23,7 @@ app.get('/oauth/callback', async (req, res) => {
             code: code,
             client_id: process.env.CLIENT_ID,  // Use environment variables for security
             client_secret: process.env.CLIENT_SECRET,  // Use environment variables for security
-            redirect_uri: 'https://oauth.pstmn.io/v1/callback'  // Using Postman's callback URL
+            redirect_uri: process.env.REDIRECT_URI  // Use the redirect URI from the environment variable
         }), {
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded', // Set content type to x-www-form-urlencoded
@@ -47,7 +47,4 @@ app.get('/oauth/callback', async (req, res) => {
     }
 });
 
-// Start the Express server
-app.listen(3000, () => {
-    console.log('Server is running on http://localhost:3000');
-});
+// Remove the manual `listen()` method as Vercel will automatically handle the server and URL
