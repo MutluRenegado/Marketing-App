@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import express from 'express';
 import axios from 'axios';
+import qs from 'querystring';   // Import querystring to format data for POST request
 
 // Load environment variables from the .env file
 dotenv.config();
@@ -18,15 +19,14 @@ app.get('/oauth/callback', async (req, res) => {
 
     try {
         // Exchange the authorization code for an access token
-        const response = await axios.post('https://www.wix.com/oauth/access_token', null, {
-            params: {
-                code: code,
-                client_id: process.env.CLIENT_ID,  // Use environment variables for security
-                client_secret: process.env.CLIENT_SECRET,  // Use environment variables for security
-                redirect_uri: 'https://oauth.pstmn.io/v1/callback'  // The redirect URI should match the one in your Wix app settings
-            },
+        const response = await axios.post('https://www.wix.com/oauth/access_token', qs.stringify({
+            code: code,
+            client_id: process.env.CLIENT_ID,  // Use environment variables for security
+            client_secret: process.env.CLIENT_SECRET,  // Use environment variables for security
+            redirect_uri: process.env.REDIRECT_URI  // The redirect URI should match the one in your Wix app settings
+        }), {
             headers: {
-                'Content-Type': 'application/x-www-form-urlencoded' // Set the correct content type
+                'Content-Type': 'application/x-www-form-urlencoded', // Set content type to x-www-form-urlencoded
             }
         });
 
@@ -65,7 +65,5 @@ async function fetchProductOptions(accessToken) {
     }
 }
 
-// Start the Express server
-app.listen(3000, () => {
-    console.log('Server is running on http://localhost:3000');
-});
+// Export the app to be handled by Vercel
+export default app;
