@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import express from 'express';
 import axios from 'axios';
+import qs from 'querystring';  // This will help with URL-encoded data for OAuth
 
 // Load environment variables from the .env file
 dotenv.config();
@@ -18,13 +19,12 @@ app.get('/oauth/callback', async (req, res) => {
 
     try {
         // Exchange the authorization code for an access token
-        const response = await axios.post('https://www.wix.com/oauth/access_token', null, {
-            params: {
-                code: code,
-                client_id: process.env.CLIENT_ID,  // Use environment variables for security
-                client_secret: process.env.CLIENT_SECRET,  // Use environment variables for security
-                redirect_uri: process.env.REDIRECT_URI  // The redirect URI should match the one in your Wix app settings
-            },
+        const response = await axios.post('https://www.wix.com/oauth/access_token', qs.stringify({
+            code: code,
+            client_id: process.env.CLIENT_ID,  // Use environment variables for security
+            client_secret: process.env.CLIENT_SECRET,  // Use environment variables for security
+            redirect_uri: 'https://marketing-app-phi.vercel.app/oauth/callback'  // The redirect URI should match the one in your Wix app settings
+        }), {
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded' // Set the correct content type
             }
@@ -64,3 +64,8 @@ async function fetchProductOptions(accessToken) {
         console.error('Error fetching product options:', error);
     }
 }
+
+// Start the Express server
+app.listen(3000, () => {
+    console.log('Server is running on http://localhost:3000');
+});
