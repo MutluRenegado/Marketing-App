@@ -1,5 +1,3 @@
-# .gitignore for Marketing App
-
 # Logs  
 logs  
 *.log  
@@ -139,3 +137,9 @@ build/
 
 # Ignore .env files containing sensitive keys  
 *.env*  
+
+# Vercel-specific files
+.vercel  
+
+# Ignore local development environment files for various environments
+.env*.local
