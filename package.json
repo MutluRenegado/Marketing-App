@@ -1,26 +1,27 @@
 {
-   "name": "marketingapi",
-   "version": "1.0.0",
-   "description": "Marketing Api",
-   "keywords": [
-      "wix",
-      "api",
-      "ecommerce",
-      "api",
-      "stores",
-      "products",
-      "oauths"
-   ],
-   "license": "ISC",
-   "author": "",
-   "type": "module",
-   "main": "index.js",
-   "scripts": {
-      "test": "echo \"Error: no test specified\" && exit 1",
-      "start": "node server.js"
-   },
-   "dependencies": {
-      "express": "^4.18.2",
-      "axios": "^0.27.2"
-   }
+  "name": "marketingapi",
+  "version": "1.0.0",
+  "description": "Marketing Api",
+  "keywords": [
+    "wix",
+    "api",
+    "ecommerce",
+    "api",
+    "stores",
+    "products",
+    "oauths"
+  ],
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",  // Keep this for local development
+    "vercel-build": "echo 'Vercel Build Started!'"  // Optional: Add a custom build step for Vercel (if necessary)
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "axios": "^0.27.2"
+  }
 }
