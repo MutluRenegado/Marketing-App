@@ -47,4 +47,4 @@ app.get('/oauth/callback', async (req, res) => {
     }
 });
 
-// Remove the manual `listen()` method as Vercel will automatically handle the server and URL
+// Note: Vercel will automatically handle the server and URL, so no need to manually start the server here
