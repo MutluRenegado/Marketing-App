@@ -17,8 +17,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js",  // Keep this for local development
-    "vercel-build": "echo 'Vercel Build Started!'"  // Optional: Add a custom build step for Vercel (if necessary)
+    "start": "node server.js",
+    "vercel-build": "echo 'Vercel Build Started!'"
   },
   "dependencies": {
     "express": "^4.18.2",
