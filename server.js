@@ -1,50 +1,45 @@
-import dotenv from 'dotenv';  // Using ES Module import to load environment variables
-import express from 'express'; // Using ES Module import for Express
-import axios from 'axios';     // Using ES Module import for Axios to make HTTP requests
-import qs from 'querystring';   // Import querystring to format data for POST request
+import dotenv from 'dotenv';  // Load environment variables
+import express from 'express'; // Import Express
+import axios from 'axios';     // Import Axios for HTTP requests
+import qs from 'querystring';  // Import querystring to format POST data
 
-// Load environment variables from the .env file
-dotenv.config();
+dotenv.config(); // Load environment variables from .env file
 
-const app = express();
+const app = express(); // Create an Express app
 
-// OAuth callback route to handle the redirect after authorization
+// OAuth callback route
 app.get('/oauth/callback', async (req, res) => {
-    const code = req.query.code; // The authorization code passed in the query params
+    const code = req.query.code; // Retrieve authorization code
 
-    // Check if the authorization code is provided
     if (!code) {
-        return res.status(400).send('Authorization code is missing.');
+        return res.status(400).json({ error: 'Authorization code is missing.' });
     }
 
     try {
-        // Exchange the authorization code for an access token
+        // Exchange authorization code for access token
         const response = await axios.post('https://www.wix.com/oauth/access_token', qs.stringify({
             code: code,
-            client_id: process.env.CLIENT_ID,  // Use environment variables for security
-            client_secret: process.env.CLIENT_SECRET,  // Use environment variables for security
-            redirect_uri: process.env.REDIRECT_URI  // Use the redirect URI from the environment variable
+            client_id: process.env.CLIENT_ID,
+            client_secret: process.env.CLIENT_SECRET,
+            redirect_uri: process.env.REDIRECT_URI,
         }), {
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded', // Set content type to x-www-form-urlencoded
-            }
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
         });
 
-        const accessToken = response.data.access_token; // Get the access token from the response
-
-        // Optionally, you can store the access token in a session or database
-        console.log('Access Token:', accessToken);
-
-        // Respond with a success message or a redirect to your frontend
-        res.send('OAuth authentication successful!');
-    } catch (error) {
-        console.error('Error exchanging code for access token:', error);
-        if (error.response) {
-            // If the error is from the API, you can get the response details
-            console.error('Error Response:', error.response.data);
+        const { access_token, refresh_token } = response.data; // Extract tokens
+        console.log('Access Token:', access_token);
+        if (refresh_token) {
+            console.log('Refresh Token:', refresh_token);
         }
-        res.status(500).send('OAuth authentication failed.');
+
+        // Redirect user to frontend with access token (or store it securely)
+        res.redirect(`${process.env.FRONTEND_URL}/success?token=${access_token}`);
+    } catch (error) {
+        console.error('OAuth error:', error.response?.data || error.message);
+        res.status(500).json({ error: 'OAuth authentication failed.', details: error.response?.data });
     }
 });
 
-// Note: Vercel will automatically handle the server and URL, so no need to manually start the server here
+// Vercel automatically handles server listening, so no need for `app.listen()`
+
+export default app; // Ensure Vercel handles it properly
